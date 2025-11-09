@@ -30,25 +30,54 @@ struct descriptor : public std::vector<double>
         }
         return res;
     }
+
+    double norm_l2() const
+    {
+        double res = 0.0;
+        for (auto v : *this)
+        {
+            res += std::pow(std::abs(v), 2);
+        }
+        return std::sqrt(res);
+    }
 };
 
-void calculateDescriptor(const cv::Mat& image, int kernel_size, descriptor& descr)
+// Получить ядра фильтров Габора
+void getGaborKernels(int kernel_size, std::vector<cv::Mat>& output){
+    output.clear();
+    const std::vector<double> th_values = {0.0, CV_PI / 2};
+    const std::vector<double> lm_values = {0.1, 10.0};
+    const std::vector<double> gm_values = {0.5, 2.0};
+    for (const double& th : th_values){
+        for (const double& lm: lm_values){
+            for (const double& gm: gm_values){
+                for (auto sig = 5; sig <= 15; sig += 5){
+                    output.push_back(cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sig, th, lm, gm));
+                }
+            }
+        }
+    }
+}
+
+// Применить фильтры Габора ко всему изображению
+void applyGaborFilters(const cv::Mat& image, int kernel_size, std::vector<cv::Mat>& output){
+    output.clear();
+    std::vector<cv::Mat> kernels;
+    getGaborKernels(kernel_size, kernels);
+    for (const cv::Mat& kernel: kernels){
+        cv::Mat response;
+        cv::filter2D(image, response, CV_32F, kernel);
+        output.push_back(response);
+    }
+} 
+
+// Получить дескриптор по roi и откликам фильтров Габора
+void calculateDescriptor(const std::vector<cv::Mat>& responses, descriptor& descr, const cv::Rect& roi)
 {
     descr.clear();
-    const double th = CV_PI / 4;
-    const double lm = 10.0;
-    const double gm = 0.5;
-    cv::Mat response;
-    cv::Mat mean;
-    cv::Mat dev;
-
-    // \todo implement complete texture segmentation based on Gabor filters
-    // (find good combinations for all Gabor's parameters)
-    for (auto sig = 5; sig <= 15; sig += 5)
-    {
-        cv::Mat kernel = cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sig, th, lm, gm);
-        cv::filter2D(image, response, CV_32F, kernel);
-        cv::meanStdDev(response, mean, dev);
+    cv::Mat mean, dev;
+    for (const cv::Mat& response: responses){
+        cv::meanStdDev(response(roi), mean, dev);
         descr.emplace_back(mean.at<double>(0));
         descr.emplace_back(dev.at<double>(0));
     }
@@ -59,12 +88,11 @@ namespace cvlib
 {
 cv::Mat select_texture(const cv::Mat& image, const cv::Rect& roi, double eps)
 {
-    cv::Mat imROI = image(roi);
-
-    const int kernel_size = std::min(roi.height, roi.width) / 2; // \todo round to nearest odd
-
+    const int kernel_size = 3;
+    std::vector<cv::Mat> responses;
+    applyGaborFilters(image, kernel_size, responses);
     descriptor reference;
-    calculateDescriptor(image(roi), kernel_size, reference);
+    calculateDescriptor(responses, reference, roi);
 
     cv::Mat res = cv::Mat::zeros(image.size(), CV_8UC1);
 
@@ -72,15 +100,13 @@ cv::Mat select_texture(const cv::Mat& image, const cv::Rect& roi, double eps)
     cv::Rect baseROI = roi - roi.tl();
 
     // \todo move ROI smoothly pixel-by-pixel
-    for (int i = 0; i < image.size().width / roi.width; ++i)
+    for (int i = 0; i < image.size().width  / roi.width; ++i)
     {
         for (int j = 0; j < image.size().height / roi.height; ++j)
         {
             auto curROI = baseROI + cv::Point(roi.width * i, roi.height * j);
-            calculateDescriptor(image(curROI), kernel_size, test);
-
-            // \todo implement and use norm L2
-            res(curROI) = 255 * ((test - reference).norm_l1() <= eps);
+            calculateDescriptor(responses, test, curROI);
+            res(curROI) = 255 * ((reference - test).norm_l2() <= eps);
         }
     }
 
