@@ -45,14 +45,17 @@ struct descriptor : public std::vector<double>
 // Получить ядра фильтров Габора
 void getGaborKernels(int kernel_size, std::vector<cv::Mat>& output){
     output.clear();
-    const std::vector<double> th_values = {0.0, CV_PI / 2};
-    const std::vector<double> lm_values = {0.1, 10.0};
-    const std::vector<double> gm_values = {0.5, 2.0};
+    const std::vector<double> th_values = {CV_PI / 3, 2 * CV_PI / 3};
+    const std::vector<double> lm_values = {3, 4, 5};
+    const std::vector<double> gm_values = {0.5, 0.8};
+    const std::vector<double> psi_values = {0};
     for (const double& th : th_values){
         for (const double& lm: lm_values){
             for (const double& gm: gm_values){
-                for (auto sig = 5; sig <= 15; sig += 5){
-                    output.push_back(cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sig, th, lm, gm));
+                for (const double& psi: psi_values){
+                    for (auto sig = 5; sig <= 15; sig += 5){
+                        output.push_back(cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sig, th, lm, gm, psi));
+                    }
                 }
             }
         }
@@ -88,7 +91,7 @@ namespace cvlib
 {
 cv::Mat select_texture(const cv::Mat& image, const cv::Rect& roi, double eps)
 {
-    const int kernel_size = 3;
+    const int kernel_size = 7;
     std::vector<cv::Mat> responses;
     applyGaborFilters(image, kernel_size, responses);
     descriptor reference;

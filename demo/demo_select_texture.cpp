@@ -49,7 +49,7 @@ int demo_select_texture(int argc, char* argv[])
     cv::namedWindow(data.wnd);
     cv::namedWindow(demo_wnd);
     // \todo choose reasonable max value
-    cv::createTrackbar("eps", demo_wnd, &eps, 200);
+    cv::createTrackbar("eps", demo_wnd, &eps, 500);
 
     cv::setMouseCallback(data.wnd, mouse, &data);
     cv::Mat frame_gray;
