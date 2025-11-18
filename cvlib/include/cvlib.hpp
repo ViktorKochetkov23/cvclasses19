@@ -28,8 +28,12 @@ cv::Mat select_texture(const cv::Mat& image, const cv::Rect& roi, double eps);
 class motion_segmentation : public cv::BackgroundSubtractor
 {
     public:
-    /// \brief ctor
-    motion_segmentation();
+
+    motion_segmentation(int frameQueueLength, int threshold);
+
+    ~motion_segmentation();
+
+    void setThreshold(int threshold);
 
     /// \see cv::BackgroundSubtractor::apply
     void apply(cv::InputArray image, cv::OutputArray fgmask, double learningRate = -1) override;
@@ -42,6 +46,9 @@ class motion_segmentation : public cv::BackgroundSubtractor
 
     private:
     cv::Mat bg_model_;
+    int frameQueueLength;
+    int threshold;
+    std::deque<cv::Mat>* frameQueue;
 };
 
 /// \brief FAST corner detection algorithm
