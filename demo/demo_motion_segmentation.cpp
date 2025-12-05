@@ -23,7 +23,7 @@ int demo_motion_segmentation(int argc, char* argv[])
     const auto demo_wnd = "demo";
 
     int threshold = 50;
-    cvlib::motion_segmentation* mseg = new cvlib::motion_segmentation(3, threshold);
+    cvlib::motion_segmentation* mseg = new cvlib::motion_segmentation(10, threshold);
     cv::namedWindow(main_wnd);
     cv::namedWindow(demo_wnd);
 

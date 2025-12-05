@@ -39,14 +39,13 @@ namespace cvlib
         else{
             cv::Mat _sum = cv::Mat::zeros(input_frame.size(), CV_8UC1);
             for(const cv::Mat frame: *frameQueue){
-                _sum += frame;
+                _sum += frame / frameQueue->size();
             }
-            bg_model_ = _sum / frameQueue->size();
+            bg_model_ = _sum;
             frameQueue->push_front(input_frame);
             if (frameQueue->size() > frameQueueLength){
                 frameQueue->pop_back();
             }
-            
             _fgmask.assign(255 * (cv::abs(bg_model_ - input_frame) >= threshold));
         }
     }
