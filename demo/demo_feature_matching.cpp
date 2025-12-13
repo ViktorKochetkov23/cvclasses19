@@ -21,7 +21,7 @@ int demo_feature_matching(int argc, char* argv[])
     cv::namedWindow(main_wnd);
     cv::namedWindow(demo_wnd);
 
-    auto detector = cv::AKAZE::create(); // \todo use your detector from cvlib
+    auto detector = cvlib::corner_detector_fast::create(); // \todo use your detector from cvlib
     auto matcher = cvlib::descriptor_matcher(1.2f); //\todo add trackbar to demo_wnd to tune ratio value
 
     /// \brief helper struct for tidy code

@@ -116,6 +116,8 @@ class descriptor_matcher : public cv::DescriptorMatcher
         return copy;
     }
 
+    float ssd(const cv::Mat& a, const cv::Mat& b);
+
     private:
     float ratio_;
 };
