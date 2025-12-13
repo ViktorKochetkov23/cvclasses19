@@ -126,6 +126,30 @@ class descriptor_matcher : public cv::DescriptorMatcher
 class Stitcher
 {
     /// \todo design and implement
+public:
+
+    Stitcher()
+    {
+        // defaults: ORB + BFMatcher(HAMMING)
+        detector_ = cv::ORB::create(1500);
+        matcher_ = cv::BFMatcher::create(cv::NORM_HAMMING, false);
+        ratio_thresh_ = 0.75f;
+    }
+
+    void setFeatureDetector(cv::Ptr<cv::Feature2D> det);
+    void setMatcher(cv::Ptr<cv::DescriptorMatcher> mat);
+    void setRatioThreshold(float r);
+
+    bool stitch(const cv::Mat& img, cv::Mat& pano);
+
+private:
+    cv::Ptr<cv::Feature2D> detector_;
+    cv::Ptr<cv::DescriptorMatcher> matcher_;
+    float ratio_thresh_;
+
+    float min_element_value(const std::vector<cv::Point2f>& pts, bool x);
+
+    float max_element_value(const std::vector<cv::Point2f>& pts, bool x);
 };
 } // namespace cvlib
 

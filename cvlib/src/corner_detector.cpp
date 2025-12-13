@@ -25,7 +25,7 @@ void corner_detector_fast::detect(cv::InputArray image,
     cv::Mat gray;
     cv::cvtColor(image.getMat(), gray, cv::COLOR_BGR2GRAY);
 
-    const int threshold = 40;
+    const int threshold = 20;
 
     // Смещения пикселей круга (x, y)
     static const int offset_x[16] = {
