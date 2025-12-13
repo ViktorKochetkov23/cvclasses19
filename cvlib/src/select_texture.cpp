@@ -91,7 +91,7 @@ namespace cvlib
 {
 cv::Mat select_texture(const cv::Mat& image, const cv::Rect& roi, double eps)
 {
-    const int kernel_size = 7;
+    const int kernel_size = 11;
     std::vector<cv::Mat> responses;
     applyGaborFilters(image, kernel_size, responses);
     descriptor reference;
