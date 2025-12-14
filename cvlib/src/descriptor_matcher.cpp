@@ -39,7 +39,6 @@ void descriptor_matcher::knnMatchImpl(cv::InputArray queryDescriptors, std::vect
         for (int j = 0; j < t_desc.rows; ++j){
             const cv::Mat t = t_desc.row(j);
             float dist = ssd(q, t);
-            std::cout << dist << std::endl;
             candidates.emplace_back(i, j, dist);
         }
         std::sort(candidates.begin(), candidates.end());
