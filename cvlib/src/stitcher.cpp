@@ -43,16 +43,7 @@ if (img.empty()) return false;
     std::vector<cv::DMatch> good;
     for (auto &m : knn)
     {
-        if (m.size() >= 2)
-        {
-            if (m[0].distance < ratio_thresh_ * m[1].distance)
-                good.push_back(m[0]);
-        }
-        else if (m.size() == 1)
-        {
-            // fallback: accept single match if it's reasonably small
-            good.push_back(m[0]);
-        }
+        good.push_back(m[0]);
     }
 
     if (good.size() < 4)

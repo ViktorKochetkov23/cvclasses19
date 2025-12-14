@@ -20,10 +20,10 @@ int demo_image_stitching(int argc, char* argv[])
 
     cvlib::Stitcher stitcher;
     // If you want to use your own detector / matcher, set them here:
-    // cv::Ptr<cvlib::corner_detector_fast> myDetector = cvlib::corner_detector_fast::create();
-    // cvlib::descriptor_matcher myMatcher = cvlib::descriptor_matcher(1.2f);
-    // stitcher.setFeatureDetector(myDetector);
-    // stitcher.setMatcher(cv::makePtr<cvlib::descriptor_matcher>(myMatcher));
+    cv::Ptr<cvlib::corner_detector_fast> myDetector = cvlib::corner_detector_fast::create();
+    cvlib::descriptor_matcher myMatcher = cvlib::descriptor_matcher(1.2f);
+    stitcher.setFeatureDetector(myDetector);
+    stitcher.setMatcher(cv::makePtr<cvlib::descriptor_matcher>(myMatcher));
 
     cv::Mat pano;
     int frame_index = 0;
