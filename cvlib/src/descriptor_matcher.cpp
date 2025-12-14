@@ -13,8 +13,8 @@ float descriptor_matcher::ssd(const cv::Mat& a, const cv::Mat& b)
     float sum = 0.f;
     for (int i = 0; i < a.cols; ++i)
     {
-        float d = a.at<float>(0, i) - b.at<float>(0, i);
-        sum += d * d;
+        int sum_of_bits = __builtin_popcount(a.at<uint8_t>(0, i) ^ b.at<uint8_t>(0, i));
+        sum += (float)sum_of_bits * (float)sum_of_bits;
     }
     return sum;
 }
@@ -33,8 +33,22 @@ void descriptor_matcher::knnMatchImpl(cv::InputArray queryDescriptors, std::vect
     cv::RNG rnd;
     for (int i = 0; i < q_desc.rows; ++i)
     {
-        // \todo implement Ratio of SSD check.
-        matches[i].emplace_back(i, rnd.uniform(0, t_desc.rows), FLT_MAX);
+        const cv::Mat q = q_desc.row(i);
+        std::vector<cv::DMatch> candidates;
+ 
+        for (int j = 0; j < t_desc.rows; ++j){
+            const cv::Mat t = t_desc.row(j);
+            float dist = ssd(q, t);
+            std::cout << dist << std::endl;
+            candidates.emplace_back(i, j, dist);
+        }
+        std::sort(candidates.begin(), candidates.end());
+        int neighbours = candidates.size() < k ? candidates.size() : k;
+
+        for (int idx = 0; idx < neighbours; ++idx){
+            cv::DMatch n = candidates[idx];
+            matches[i].emplace_back(n.queryIdx, n.trainIdx, n.distance);
+        }
     }
 }
 
