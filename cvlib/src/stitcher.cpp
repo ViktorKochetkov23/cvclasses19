@@ -116,23 +116,6 @@ if (img.empty()) return false;
     int offset_x = static_cast<int>(-min_x);
     int offset_y = static_cast<int>(-min_y);
 
-    // create mask where pano exists
-    cv::Mat mask_pano(pano.size(), CV_8U, cv::Scalar(0));
-    for (int y = 0; y < pano.rows; ++y)
-        for (int x = 0; x < pano.cols; ++x)
-        {
-            // simple non-black test (works for typical images)
-            if (pano.type() == CV_8UC3)
-            {
-                cv::Vec3b v = pano.at<cv::Vec3b>(y,x);
-                if (v != cv::Vec3b(0,0,0)) mask_pano.at<unsigned char>(y,x) = 255;
-            }
-            else
-            {
-                if (pano.at<unsigned char>(y,x) != 0) mask_pano.at<unsigned char>(y,x) = 255;
-            }
-        }
-
     // place pano with simple blending: where both exist -> average
     for (int y = 0; y < pano.rows; ++y)
     {
